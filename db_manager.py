@@ -105,11 +105,11 @@ def log_user_feedback(fact_hash, score):
     print(f"Feedback {score} recorded for {fact_hash[:8]}")
 
 
-def update_feedback(fact_hash, score):
+def update_feedback(fact_id, score):
     """Updates the user_feedback column (1 for Like, -1 for Dislike)."""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute('UPDATE facts SET user_feedback = ? WHERE hash = ?', (score, fact_hash))
+    cursor.execute('UPDATE facts SET user_feedback = ? WHERE fact_id = ?', (score, fact_id))
     conn.commit()
     conn.close()
 

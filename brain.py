@@ -202,6 +202,6 @@ def discover_fact():
     if new_fact_id:
         print(f"Successfully stored Fact ID: {new_fact_id} in your research database.")
     
-    return winner_text
+        return winner_text, new_fact_id
 
 
