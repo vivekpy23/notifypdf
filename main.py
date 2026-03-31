@@ -3,6 +3,7 @@ from langchain_chroma import Chroma
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.llms import Ollama
 import brain
+import json
 
 # --- CONFIGURATION ---
 DB_DIR = "chroma_db"
@@ -19,27 +20,47 @@ def send_to_mobile(text, fact_id):
     # Example: http://192.168.1.10:5000/feedback?id=123&score=1
     base_url = "http://192.168.1.15:5000/feedback" 
 
-    try:
-        # Actions format: label, url, method
-        actions = (
-            f"view, Like, {base_url}?id={fact_id}&score=1; "
-            f"view, Dislike, {base_url}?id={fact_id}&score=-1"
-        )
 
+        # Actions format: label, url, method
+    actions = [
+    {
+        "action": "http",
+        "label": "Like",
+        "url": base_url,
+        "method": "POST",
+        "headers": {"Content-Type": "application/json"}, # <--- Add this
+        "body": json.dumps({"id": fact_id, "score": 1}), # Use 'body' instead of 'params'
+        "clear": True
+    },
+    {
+        "action": "http",
+        "label": "Dislike",
+        "url": base_url,
+        "method": "POST",
+        "headers": {"Content-Type": "application/json"},
+        "body": json.dumps({"id": fact_id, "score": -1}),
+        "clear": True
+    }
+]
+
+    try:
+        
         requests.post(
             NTFY_URL,
             data=text.encode('utf-8'),
             headers={
-                "Title": "TODAY's DISCOVERY",
+                "Title": "NEW DISCOVERY",
+                "Tags": "scroll,brain",
                 "Priority": "high",
-                "Actions": actions  # This creates the buttons in the app
+                "Actions": json.dumps(actions) # Convert list to JSON string
             }
         )
-        print(f"Notification with buttons sent for Fact ID: {fact_id}")
+        print(f"Silent notification sent for Fact ID: {fact_id}")
     except Exception as e:
         print(f"Delivery failed: {e}")
 
-# --- EXECUTION ---
+
+
 if __name__ == "__main__":
     found_fact, fact_id = brain.discover_fact()
     send_to_mobile(found_fact, fact_id)

@@ -3,24 +3,23 @@ app = Flask(__name__)
 
 from db_manager import update_feedback
 
-@app.route('/feedback', methods=['GET'])
-def handle_feedback():
-    fact_id = request.args.get('id')
-    score = request.args.get('score')
+@app.route('/feedback', methods=['POST'])
+def feedback():
+    # 1. Try to get JSON first (common for modern APIs)
+    data = request.get_json(silent=True)
     
-    if fact_id and score:
-        update_feedback(int(fact_id), int(score))
-        # This HTML response shows up on your phone screen
-        return f"""
-        <html>
-            <body style="font-family:sans-serif; text-align:center; padding-top:50px;">
-                <h1>✅ Success!</h1>
-                <p>Fact <b>{fact_id}</b> has been rated <b>{score}</b>.</p>
-                <p>You can close this window now.</p>
-            </body>
-        </html>
-        """, 200
-    return "Error: Missing Data", 400
+    # 2. If JSON is empty, check the standard Form data (what ntfy usually sends)
+    if not data:
+        data = request.form
+
+    fid = data.get('id')
+    val = data.get('score')
+    
+    if fid is not None and val is not None:
+        update_feedback(int(fid), int(val))
+        return "OK", 200
+        
+    return f"Invalid Data: {data}", 400
 
 
 if __name__ == "__main__":
