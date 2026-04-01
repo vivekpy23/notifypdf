@@ -41,8 +41,8 @@ of knowledge without manual user queries.
 ------------------------
 [DONE] PDF Ingestion, Chunking, and Embedding logic.
 [DONE] ChromaDB integration and basic ntfy pipeline.
-[WIP]  Multi-candidate generation and "Selector" logic.
-[TODO] Deduplication engine and persistent memory.
+[DONE] Multi-candidate generation and "Selector" logic.
+[DONE] Deduplication engine and persistent memory.
 
 6. DESIGN PRINCIPLES
 --------------------
@@ -53,8 +53,8 @@ of knowledge without manual user queries.
 
 7. FUTURE ROADMAP
 -----------------
-Phase 3: Memory & Deduplication (Avoid repeating facts).
-Phase 4: Feedback Loop (Thumbs up/down via notification to tune LLM).
+[DONE] Phase 3: Memory & Deduplication (Avoid repeating facts).
+[DONE] Phase 4: Feedback Loop (Thumbs up/down via notification to tune LLM).
 Phase 5: Knowledge Graph (Identify entities and connections across PDFs).
 Phase 6: Content Gen (Auto-generate threads/summaries from top facts).
 
@@ -65,8 +65,4 @@ Phase 6: Content Gen (Auto-generate threads/summaries from top facts).
 * Risk: Redundancy.
   -> Mitigation: Semantic similarity check against a "Sent_History" log.
 
-9. NEXT IMMEDIATE STEPS
------------------------
-> Implement the Ranker/Selector stage to choose the best candidate fact.
-> Create a simple JSON-based "Sent_History" to prevent duplicates.
 ================================================================================

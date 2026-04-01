@@ -158,5 +158,53 @@ def truncate_facts():
     conn.close()
 
 
+def get_recent_file_ids(hours=48):
+    """Returns a list of file_ids that provided facts recently."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    # We pass the full interval string to the placeholder
+    interval = f"-{hours} hours"
+    
+    try:
+        cursor.execute("""
+            SELECT DISTINCT file_id FROM facts 
+            WHERE created_at > datetime('now', ?)
+        """, (interval,))
+        
+        recent_ids = [row[0] for row in cursor.fetchall()]
+        return recent_ids
+    except sqlite3.Error as e:
+        print(f"❌ SQL Error in get_recent_file_ids: {e}")
+        return []
+    finally:
+        conn.close()
+
+
+def get_book_weights():
+    """Returns a dictionary of {file_id: weight} based on likes."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    # Base weight for every book is 1
+    cursor.execute("SELECT file_id FROM ingested_files")
+    weights = {row[0]: 1.0 for row in cursor.fetchall()}
+    
+    # Add 0.5 weight for every 'Like' (up to a max cap of 5.0 to avoid monopoly)
+    cursor.execute("""
+        SELECT file_id, COUNT(*) as likes 
+        FROM facts 
+        WHERE user_feedback = 1 
+        GROUP BY file_id
+    """)
+    
+    for file_id, likes in cursor.fetchall():
+        # Formula: 1.0 + (likes * 0.5), maxed at 5.0
+        weights[file_id] = min(5.0, 1.0 + (likes * 0.5))
+        
+    conn.close()
+    return weights
+
+
 if __name__ == "__main__":
     init_db()

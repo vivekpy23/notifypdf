@@ -6,7 +6,7 @@ from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.llms import Ollama
 from langchain_core.prompts import PromptTemplate
 import random
-from db_manager import DB_PATH, get_existing_fact_id, save_fact, get_file_id
+from db_manager import *
 
 DB_DIR = "chroma_db"
 MODEL_NAME = "llama3.2:latest"
@@ -124,15 +124,33 @@ def discover_fact():
     vector_db = Chroma(persist_directory=DB_DIR, embedding_function=embeddings)
     llm = Ollama(model=MODEL_NAME)
 
-    # 1. Get all IDs to pick random samples
-    all_ids = vector_db.get(include=[])['ids']
-    if not all_ids:
-        print("Vector DB is empty. Please run ingest.py first.")
-        return
-    
-    # Pick 5 random chunks to evaluate
-    k = min(5, len(all_ids))
-    random_ids = random.sample(all_ids, k)
+
+    #1. Get all IDs and Metadatas to calculate weights
+    all_info = vector_db.get(include=['metadatas'])
+    all_ids = all_info['ids']
+    all_metas = all_info['metadatas']
+
+    # Get our reinforcement data from SQL
+    book_weights = get_book_weights() # The 5x Boost for Likes
+    recent_files = get_recent_file_ids(hours=48) # The Penalty list
+
+
+    # This is the "Brain" of your retrieval engine
+    calculated_weights = []
+    for meta in all_metas:
+        source_name = os.path.basename(meta.get('source', ''))
+        f_id = get_file_id(source_name)
+        
+        # Start with the Like-based weight (1.0 to 5.0)
+        weight = book_weights.get(f_id, 1.0)
+        
+        # Apply the Recency Penalty (0.1x) if used recently
+        if f_id in recent_files:
+            weight *= 0.1 
+            
+        calculated_weights.append(weight)
+
+    random_ids = random.choices(all_ids, weights=calculated_weights, k=5)
 
     # 2. Pull both text and metadata for these specific IDs
     all_data = vector_db.get(ids=random_ids, include=['documents', 'metadatas'])

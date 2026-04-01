@@ -1,3 +1,4 @@
-data/
-chroma_db/
-facts_db/
+data/*
+chroma_db/*
+chroma.sqlite3
+facts_db/*
