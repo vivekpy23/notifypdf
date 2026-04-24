@@ -1,0 +1,68 @@
+# GenAI Learning Concepts for Knowledge Extraction POC
+
+## Core Retrieval & Representation
+
+* Retrieval-Augmented Generation (RAG) — Enables combining stored knowledge with LLM reasoning
+* Vector Embeddings — Converts text into numerical representations for semantic comparison
+* Latent / Semantic Space — Allows understanding similarity beyond exact keywords
+* Cosine Similarity — Measures closeness between embeddings
+* Top-K Retrieval — Selects most relevant chunks efficiently
+* Approximate Nearest Neighbor (ANN) — Scales similarity search for large datasets
+* Index Structures (HNSW, IVF) — Balances retrieval speed vs accuracy
+* Vector Quantization — Optimizes storage and retrieval performance
+* Embedding Drift — Impacts consistency when models or data evolve
+
+## Chunking & Data Handling
+
+* Chunking Strategies — Controls context granularity and retrieval quality
+* Sliding Window / Overlap — Preserves context continuity across chunks
+* Metadata Filtering — Restricts retrieval to relevant documents or topics
+* Hybrid Retrieval — Improves recall using semantic + keyword signals
+
+## Prompting & LLM Behavior
+
+* Few-Shot Prompting / ICL — Guides model behavior using examples
+* Negative Constraints / Guardrails — Prevents hallucination and unwanted outputs
+* Tokenization & Context Windows — Defines how much information model can process
+* Determinism vs Stochasticity — Controls consistency vs creativity (temperature, top-p)
+* Prompt Injection / Adversarial Inputs — Protects system from malicious inputs
+
+## Ranking & Selection Logic
+
+* Semantic Reranking — Improves quality of retrieved candidates
+* Heuristic Scoring Systems — Adds deterministic control over LLM outputs
+* Ranking vs Classification vs Generation — Clarifies stage responsibilities
+* Maximal Marginal Relevance (MMR) — Ensures diversity in selected content
+* Feature Engineering for Ranking — Enhances selection using derived signals
+
+## Learning & Feedback
+
+* RLHF (Lite) — Uses user feedback to improve system behavior
+* Exploration vs Exploitation — Balances trying new vs using known good outputs
+* Epsilon-Greedy Strategy — Simple method to balance exploration/exploitation
+* Feedback Loop Design — Converts user signals into system improvement
+* Cold Start Problem — Handles lack of initial feedback data
+* Temporal Decay / Recency Bias — Prioritizes recent or fresh information
+
+## System Design & Pipeline
+
+* Data Contracts Between Stages — Ensures clean, predictable data flow
+* Pipeline Orchestration — Manages multi-step processing reliably
+* Batch vs Real-time Inference — Optimizes execution strategy
+* Latency vs Quality Trade-off — Balances responsiveness with output quality
+* Caching Strategies — Reduces repeated computation and latency
+
+## Evaluation & Reliability
+
+* LLM-as-Judge — Uses models to evaluate output quality
+* Output Parsing / Structured Generation — Enables reliable downstream usage
+* Hallucination Mitigation — Ensures factual correctness and trust
+
+## Overall Goal
+
+Build a system that:
+
+* Extracts high-quality knowledge automatically
+* Learns from user feedback
+* Improves over time
+* Converts passive data into actionable insights
