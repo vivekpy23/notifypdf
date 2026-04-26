@@ -3,9 +3,21 @@ import os
 from datetime import datetime
 import hashlib
 
+from langchain_chroma import Chroma
+from langchain_community.embeddings import OllamaEmbeddings
+from langchain_community.llms import Ollama
+
 DB_FOLDER = "facts_db"
 DB_PATH = os.path.join(DB_FOLDER, "facts_history.db")
 SCHEMA_PATH = os.path.join(DB_FOLDER, "schema.sql")
+
+
+VDB_DIR = "chroma_db"
+MODEL_NAME = "llama3.2:latest"
+embeddings = OllamaEmbeddings(model=MODEL_NAME)
+vector_db = Chroma(persist_directory=VDB_DIR, embedding_function=embeddings)
+llm = Ollama(model=MODEL_NAME)
+
 
 def init_db():
     """Initializes the database using the external SQL schema file."""
@@ -66,6 +78,32 @@ def is_already_sent(fact_hash):
     
     # Returns True if found, False if it's a new discovery
     return result is not None
+
+
+def get_recent_facts(limit=15):
+    """
+    Retrieves the text of the most recently sent facts.
+    Used by the Archivist Agent to prevent semantic repetition.
+    """
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    try:
+        # We only need the text of the fact for the LLM to compare
+        cursor.execute('''
+            SELECT fact_text FROM facts 
+            ORDER BY created_at DESC 
+            LIMIT ?
+        ''', (limit,))
+        
+        # Flatten the list of tuples into a simple list of strings
+        recent_facts = [row[0] for row in cursor.fetchall()]
+        return recent_facts
+    except sqlite3.Error as e:
+        print(f"❌ Database error in get_recent_facts: {e}")
+        return []
+    finally:
+        conn.close()
 
 
 def save_fact(fact_text, fact_hash, file_id=None):
