@@ -40,7 +40,7 @@ def run_ingestion():
             # 3. Chunking (The 'Slicing' Strategy)
             # We use 500 chars with 50 char overlap as we discussed.
             text_splitter = RecursiveCharacterTextSplitter(
-                chunk_size=750, 
+                chunk_size=400, 
                 chunk_overlap=50
             )
             chunks = text_splitter.split_documents(data)
@@ -51,7 +51,7 @@ def run_ingestion():
             print("Creating embeddings and saving to ChromaDB... (This may take a moment)")
             vector_db = Chroma.from_documents(
                 documents=chunks,
-                embedding=OllamaEmbeddings(model="llama3.2:latest"), 
+                embedding=OllamaEmbeddings(model="nomic-embed-text:latest"), 
                 persist_directory=DB_DIR
             )
 

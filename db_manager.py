@@ -178,7 +178,7 @@ def get_file_id(filename):
     return result[0] if result else None
 
 
-def truncate_table():
+def truncate_ingested_files():
     """Records that a PDF has been processed."""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
